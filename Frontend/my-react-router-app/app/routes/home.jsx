@@ -1,10 +1,7 @@
-// routes/home.tsx
-
 import { useState } from "react";
 import ScriptInput from "../components/ScriptInput";
 import VoiceRecorder from "../components/VoiceRecorder";
 import VoicePlayback from "../components/VoicePlayback";
-
 
 export default function Home() {
   const [script, setScript] = useState("");
@@ -20,5 +17,3 @@ export default function Home() {
     </div>
   );
 }
-
-
