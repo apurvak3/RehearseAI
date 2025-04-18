@@ -1,20 +1,25 @@
 import React from 'react';
-import Navbar from './components/Navbar'; // Navbar component
-import Home from './components/Home'; // Home component
-import ScriptUploader from './components/ScriptUploader'; // Script Uploader component
-import Transcriber from './components/Transcriber'; // Transcriber component
-import VoicePlayer from './components/VoicePlayer'; // Voice Player component
+import { Routes, Route } from 'react-router-dom';
+import Home from './components/Home';
+import Transcriber from './components/Transcriber';
+import VoicePlayer from './components/VoicePlayer';
+import ScriptUploader from './components/ScriptUploader';
+import Navbar from './components/Navbar';
 
-const App = () => {
+function App() {
   return (
-    <div className="app">
+    <>
       <Navbar />
-      <Home />
-      <ScriptUploader />
-      <Transcriber />
-      <VoicePlayer />
-    </div>
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/transcriber" element={<Transcriber />} />
+        <Route path="/tts" element={<VoicePlayer />} />
+        <Route path="/upload" element={<ScriptUploader />} />
+      </Routes>
+    </>
   );
-};
+}
 
 export default App;
+
+
