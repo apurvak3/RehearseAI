@@ -1,11 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import './Transcriber.css';
+import axios from 'axios';
 import { Mic, StopCircle, Copy, Download, RefreshCw } from 'lucide-react';
 
 function Transcriber() {
   const [isRecording, setIsRecording] = useState(false);
   const [transcript, setTranscript] = useState('');
+  const [history, setHistory] = useState([]);
   const [recordingTime, setRecordingTime] = useState(0);
+ 
 
   // Timer for recording duration
   useEffect(() => {
@@ -27,6 +30,19 @@ function Transcriber() {
     return `${mins}:${secs}`;
   };
 
+  // Function to save to history
+  const saveToHistory = async (text) => {
+    try {
+      await axios.post('/api/history/transcriber', {
+        text,
+        userId: localStorage.getItem('userId'), // or get from auth context
+      });
+      console.log("Saved to history");
+    } catch (err) {
+      console.error("Error saving history", err);
+    }
+  };
+
   const toggleRecording = () => {
     setIsRecording(!isRecording);
     
@@ -38,7 +54,11 @@ function Transcriber() {
       console.log("Recording stopped");
       // Simulate receiving transcript
       setTimeout(() => {
-        setTranscript("This is a simulated transcript of what you would say. In a real application, this text would come from the speech recognition API. It would capture your speech in real-time and convert it to text with high accuracy, allowing you to focus on your performance rather than taking notes.");
+        const simulatedTranscript = "This is a simulated transcript of what you would say. In a real application, this text would come from the speech recognition API. It would capture your speech in real-time and convert it to text with high accuracy, allowing you to focus on your performance rather than taking notes.";
+        setTranscript(simulatedTranscript);
+        
+        // Save to history when transcript is generated
+        saveToHistory(simulatedTranscript);
       }, 1000);
     }
   };

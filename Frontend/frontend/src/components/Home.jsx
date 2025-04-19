@@ -23,7 +23,7 @@ function Home() {
           </div>
         </div>
         <div className="hero-image">
-          <img src="/api/placeholder/600/350" alt="RehearseAI in action" />
+          <img src="image.png" alt="RehearseAI in action" />
         </div>
       </section>
 
@@ -74,12 +74,13 @@ function Home() {
       </section>
 
       <section className="get-started">
-        <h2>Ready to Perfect Your Performance?</h2>
-        <Link to="/upload" className="cta-button primary large">
-          <Zap size={20} />
-          Get Started Now
-        </Link>
-      </section>
+  <h2>Ready to Perfect Your Performance?</h2>
+  <Link to="/login" className="cta-button primary large">
+    <Zap size={20} />
+    Get Started Now
+  </Link>
+</section>
+
     </div>
   );
 }

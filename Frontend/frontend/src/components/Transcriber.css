@@ -2,7 +2,7 @@
   max-width: 900px;
   margin: 3rem auto;
   padding: 2.5rem;
-  color: white;
+  color: rgb(29, 16, 16);
   background: rgba(255, 255, 255, 0.03);
   border-radius: 16px;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
@@ -12,22 +12,23 @@
 .transcriber-header {
   display: flex;
   align-items: center;
+  color: #020202;
   gap: 1.2rem;
   margin-bottom: 2.5rem;
   padding-bottom: 1.5rem;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  border-bottom: 1px solid rgba(7, 7, 7, 0.1);
 }
 
 .transcriber-title {
   margin: 0;
   font-size: 2.2rem;
-  background: linear-gradient(90deg, #fff, #e0e0e0);
+  background: linear-gradient(90deg, #0e0d0d, #020202);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
 
 .transcriber-subtitle {
-  color: #b4b4b4;
+  color: #0b0909;
   margin-top: 0.8rem;
   font-size: 1.1rem;
   line-height: 1.6;
@@ -173,7 +174,7 @@
 .transcript-section {
   margin-top: 3rem;
   padding-top: 2rem;
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  border-top: 1px solid rgba(5, 4, 4, 0.1);
 }
 
 .transcript-header {
@@ -238,5 +239,23 @@
     margin: 2rem 1rem;
     padding: 1.5rem;
   }
+  
+  .transcriber-title {
+    font-size: 1.8rem;
+  }
+  
+  .transcriber-subtitle {
+    font-size: 0.9rem;
+  }
+  
+  .recording-button {
+    padding: 1rem 2rem;
+    font-size: 1.1rem;
+  }
+  
+  .transcript-controls {
+    flex-wrap: wrap;
+  }
+}
   
   
