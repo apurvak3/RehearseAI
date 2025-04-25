@@ -21,13 +21,13 @@
 .uploader-title {
   margin: 0;
   font-size: 2.2rem;
-  background: linear-gradient(90deg, #fff, #e0e0e0);
+  background: linear-gradient(90deg, #150909);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
 
 .uploader-subtitle {
-  color: #b4b4b4;
+  color: #706363;
   margin-top: 0.8rem;
   font-size: 1.1rem;
   line-height: 1.6;
@@ -35,7 +35,7 @@
 
 .uploader-icon {
   font-size: 2.8rem;
-  color: #4e9af1;
+  color: #0c3667;
   filter: drop-shadow(0 0 10px rgba(78, 154, 241, 0.4));
 }
 
@@ -56,7 +56,7 @@
   background: rgba(78, 154, 241, 0.15);
   border: 1px dashed rgba(78, 154, 241, 0.5);
   border-radius: 8px;
-  color: #fff;
+  color: #0d0b0b;
   font-weight: 500;
   cursor: pointer;
   display: flex;
@@ -71,7 +71,7 @@
 }
 
 .file-upload-text {
-  color: #b4b4b4;
+  color: #776e6e;
   font-size: 0.9rem;
 }
 
@@ -85,7 +85,7 @@
   padding: 1.5rem;
   font-size: 1.1rem;
   line-height: 1.6;
-  color: #f0f0f0;
+  color: #140d0d;
   background: rgba(255, 255, 255, 0.06);
   border-radius: 12px;
   border: 1px solid rgba(255, 255, 255, 0.08);

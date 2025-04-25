@@ -1,71 +1,80 @@
 import React, { useState, useEffect } from 'react';
 import './Transcriber.css';
-import axios from 'axios';
+import axios from '../api/axios';
 import { Mic, StopCircle, Copy, Download, RefreshCw } from 'lucide-react';
 
 function Transcriber() {
   const [isRecording, setIsRecording] = useState(false);
   const [transcript, setTranscript] = useState('');
-  const [history, setHistory] = useState([]);
   const [recordingTime, setRecordingTime] = useState(0);
- 
 
-  // Timer for recording duration
+  // Timer update
   useEffect(() => {
     let interval;
     if (isRecording) {
       interval = setInterval(() => {
-        setRecordingTime(prevTime => prevTime + 1);
+        setRecordingTime(prev => prev + 1);
       }, 1000);
     } else {
       setRecordingTime(0);
     }
     return () => clearInterval(interval);
   }, [isRecording]);
-  
-  // Format time as mm:ss
+
+  // Time format mm:ss
   const formatTime = (seconds) => {
-    const mins = Math.floor(seconds / 60).toString().padStart(2, '0');
-    const secs = (seconds % 60).toString().padStart(2, '0');
+    const mins = String(Math.floor(seconds / 60)).padStart(2, '0');
+    const secs = String(seconds % 60).padStart(2, '0');
     return `${mins}:${secs}`;
   };
 
-  // Function to save to history
   const saveToHistory = async (text) => {
     try {
-      await axios.post('/api/history/transcriber', {
+      await axios.post('/history/transcriber', {
         text,
-        userId: localStorage.getItem('userId'), // or get from auth context
+        userId: localStorage.getItem('userId'),
       });
-      console.log("Saved to history");
+      console.log("✅ Saved to history");
     } catch (err) {
-      console.error("Error saving history", err);
+      console.error("❌ Error saving history", err);
     }
   };
 
-  const toggleRecording = () => {
-    setIsRecording(!isRecording);
-    
-    // Simulate recording and transcription
+  const toggleRecording = async () => {
     if (!isRecording) {
-      console.log("Recording started");
-      // In a real app, this would start audio recording
-    } else {
-      console.log("Recording stopped");
-      // Simulate receiving transcript
-      setTimeout(() => {
-        const simulatedTranscript = "This is a simulated transcript of what you would say. In a real application, this text would come from the speech recognition API. It would capture your speech in real-time and convert it to text with high accuracy, allowing you to focus on your performance rather than taking notes.";
-        setTranscript(simulatedTranscript);
-        
-        // Save to history when transcript is generated
-        saveToHistory(simulatedTranscript);
-      }, 1000);
+      setIsRecording(true);
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const mediaRecorder = new MediaRecorder(stream);
+      const chunks = [];
+
+      mediaRecorder.ondataavailable = (e) => chunks.push(e.data);
+
+      mediaRecorder.onstop = async () => {
+        setIsRecording(false);
+        const blob = new Blob(chunks, { type: 'audio/webm' });
+        const formData = new FormData();
+        formData.append('audio', blob, 'recording.webm');
+
+        try {
+          const res = await axios.post('/whisper/transcribe', formData, {
+            headers: { 'Content-Type': 'multipart/form-data' }
+          });
+          setTranscript(res.data.text);
+          saveToHistory(res.data.text);
+        } catch (err) {
+          console.error("❌ Transcription error:", err);
+          alert("Failed to transcribe. Please try again.");
+        }
+      };
+
+      mediaRecorder.start();
+      setTimeout(() => mediaRecorder.stop(), 5000); // 30 sec max
     }
   };
 
   const copyTranscript = () => {
     navigator.clipboard.writeText(transcript);
-    alert("Transcript copied to clipboard!");
+    alert("📋 Transcript copied!");
   };
 
   const resetTranscript = () => {
@@ -73,13 +82,13 @@ function Transcriber() {
   };
 
   const downloadTranscript = () => {
-    const element = document.createElement("a");
-    const file = new Blob([transcript], {type: 'text/plain'});
-    element.href = URL.createObjectURL(file);
-    element.download = "transcript.txt";
-    document.body.appendChild(element);
-    element.click();
-    document.body.removeChild(element);
+    const blob = new Blob([transcript], { type: 'text/plain' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = 'transcript.txt';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   };
 
   return (
@@ -88,68 +97,38 @@ function Transcriber() {
         <span className="transcriber-icon">🎤</span>
         <div>
           <h1 className="transcriber-title">Speech to Text Transcriber</h1>
-          <p className="transcriber-subtitle">Record your practice sessions and convert them to text instantly</p>
+          <p className="transcriber-subtitle">Record your script practice and convert to text</p>
         </div>
       </div>
-      
+
       <div className="recording-section">
-        <button 
-          className={`recording-button ${isRecording ? 'recording' : ''}`} 
-          onClick={toggleRecording}
-        >
-          {isRecording ? (
-            <>
-              <StopCircle size={24} />
-              Stop Recording
-            </>
-          ) : (
-            <>
-              <Mic size={24} />
-              Start Recording
-            </>
-          )}
+        <button className={`recording-button ${isRecording ? 'recording' : ''}`} onClick={toggleRecording}>
+          {isRecording ? <><StopCircle size={20} /> Stop</> : <><Mic size={20} /> Start</>}
         </button>
-        
+
         {isRecording && (
           <div className="recording-indicator">
             <div className="pulse-animation"></div>
-            <div className="recording-time">{formatTime(recordingTime)}</div>
+            <p>{formatTime(recordingTime)}</p>
             <p className="recording-status">Recording in progress...</p>
-            <div className="waveform">
-              {[...Array(9)].map((_, index) => (
-                <div key={index} className="waveform-bar"></div>
-              ))}
-            </div>
+            <div className="waveform">{[...Array(9)].map((_, i) => <div key={i} className="waveform-bar" />)}</div>
           </div>
         )}
       </div>
-      
+
       <div className="transcript-section">
         <div className="transcript-header">
           <h3>Transcript</h3>
           {transcript && (
             <div className="transcript-controls">
-              <button className="transcript-control-button" onClick={copyTranscript}>
-                <Copy size={16} />
-                Copy
-              </button>
-              <button className="transcript-control-button" onClick={downloadTranscript}>
-                <Download size={16} />
-                Download
-              </button>
-              <button className="transcript-control-button" onClick={resetTranscript}>
-                <RefreshCw size={16} />
-                Reset
-              </button>
+              <button onClick={copyTranscript}><Copy size={16} /> Copy</button>
+              <button onClick={downloadTranscript}><Download size={16} /> Download</button>
+              <button onClick={resetTranscript}><RefreshCw size={16} /> Reset</button>
             </div>
           )}
         </div>
         <div className="transcript-box">
-          {transcript ? transcript : (
-            <span className="transcript-placeholder">
-              Your transcript will appear here after you record something...
-            </span>
-          )}
+          {transcript || <span className="transcript-placeholder">Your transcript will appear here after recording...</span>}
         </div>
       </div>
     </div>

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import './VoicePlayer.css';
 
@@ -6,42 +6,80 @@ function VoicePlayer() {
   const [text, setText] = useState('');
   const [isPlaying, setIsPlaying] = useState(false);
   const [ttsHistory, setTtsHistory] = useState([]);
+  const audioRef = useRef(null);
+  
+  // Generate a temporary user ID if none exists
+  const ensureUserId = () => {
+    let userId = localStorage.getItem('userId');
+    if (!userId) {
+      // Generate a temporary ID
+      userId = 'temp-user-' + Math.random().toString(36).substring(2, 15);
+      localStorage.setItem('userId', userId);
+      console.log('Created temporary user ID:', userId);
+    }
+    return userId;
+  };
 
   const handlePlay = async () => {
     if (!text.trim()) return;
     setIsPlaying(true);
 
     try {
-      // 🔁 TODO: Call Eleven Labs API here
-      console.log("Sending text to Eleven Labs:", text);
-
-      // Simulate playback
-      setTimeout(() => {
-        setIsPlaying(false);
-      }, 2000);
-
-      // Save to history
-      await axios.post('/api/history/tts', {
-        userId: localStorage.getItem('userId'),
-        text
+      // Call your backend TTS endpoint
+      const response = await axios({
+        method: 'POST',
+        url: '/api/tts/generate',
+        data: { text },
+        responseType: 'arraybuffer'
       });
 
-      setText('');
-      fetchTTSHistory();
+      // Create audio blob and play it
+      const audioBlob = new Blob([response.data], { type: 'audio/mpeg' });
+      const audioUrl = URL.createObjectURL(audioBlob);
+      
+      if (audioRef.current) {
+        audioRef.current.src = audioUrl;
+        audioRef.current.play();
+        
+        audioRef.current.onended = () => {
+          setIsPlaying(false);
+          URL.revokeObjectURL(audioUrl); // Clean up
+        };
+      }
+
+      // Save to history
+      try {
+        const userId = ensureUserId();
+        await axios.post('/api/history/tts', {
+          userId,
+          text
+        });
+        setText('');
+        fetchTTSHistory();
+      } catch (historyErr) {
+        console.error("History save error:", historyErr);
+        // Don't block the main flow if history saving fails
+      }
     } catch (err) {
       console.error("TTS error:", err);
       setIsPlaying(false);
+      alert("Failed to generate speech. Please try again later.");
     }
   };
 
   const fetchTTSHistory = async () => {
     try {
+      const userId = ensureUserId();
+      
       const res = await axios.get('/api/history/tts', {
-        params: { userId: localStorage.getItem('userId') }
+        params: { userId }
       });
-      setTtsHistory(res.data.history);
+      
+      // Make sure we're setting an array, even if the API returns something unexpected
+      setTtsHistory(Array.isArray(res.data.history) ? res.data.history : []);
     } catch (err) {
       console.error("TTS history error:", err);
+      setTtsHistory([]); // Set to empty array on error
     }
   };
 
@@ -60,8 +98,11 @@ function VoicePlayer() {
       <button onClick={handlePlay} disabled={isPlaying}>
         {isPlaying ? 'Playing...' : 'Play Voice'}
       </button>
+      
+      {/* Hidden audio element to play the TTS audio */}
+      <audio ref={audioRef} style={{ display: 'none' }} />
 
-      {ttsHistory.length > 0 && (
+      {ttsHistory && ttsHistory.length > 0 && (
         <div className="upload-history">
           <h3>Generated Voices History</h3>
           <ul>

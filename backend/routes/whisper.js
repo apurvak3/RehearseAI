@@ -5,6 +5,11 @@ const fs = require('fs');
 const axios = require('axios');
 require('dotenv').config();
 
+// ✅ ADD THIS TEST ROUTE TO VERIFY CONNECTION
+router.get('/test', (req, res) => {
+  res.send("Whisper route is working ✅");
+});
+
 router.post('/transcribe', (req, res) => {
   const form = formidable({ multiples: false });
 
@@ -27,9 +32,12 @@ router.post('/transcribe', (req, res) => {
 
       res.json({ text: response.data });
     } catch (error) {
+      console.error('❌ Whisper failed:', error.response?.data || error.message || error);
       res.status(500).json({ error: 'Whisper failed', details: error.message });
     }
+    
   });
 });
 
 module.exports = router;
+

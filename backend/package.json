@@ -20,6 +20,7 @@
     "formidable": "^3.5.3",
     "fs": "^0.0.1-security",
     "jsonwebtoken": "^9.0.2",
-    "mongoose": "^8.13.2"
+    "mongoose": "^8.13.2",
+    "openai": "^4.95.1"
   }
 }
