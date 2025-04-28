@@ -4,8 +4,10 @@ import './VoicePlayer.css';
 
 function VoicePlayer() {
   const [text, setText] = useState('');
+  const [emotion, setEmotion] = useState('neutral');
   const [isPlaying, setIsPlaying] = useState(false);
   const [ttsHistory, setTtsHistory] = useState([]);
+  const [showHistory, setShowHistory] = useState(false);
   const audioRef = useRef(null);
   
   // Generate a temporary user ID if none exists
@@ -21,7 +23,10 @@ function VoicePlayer() {
   };
 
   const handlePlay = async () => {
-    if (!text.trim()) return;
+    if (!text.trim()) {
+      alert("Please enter some text.");
+      return;
+    }
     setIsPlaying(true);
 
     try {
@@ -29,7 +34,7 @@ function VoicePlayer() {
       const response = await axios({
         method: 'POST',
         url: '/api/tts/generate',
-        data: { text },
+        data: { text, emotion },
         responseType: 'arraybuffer'
       });
 
@@ -52,7 +57,8 @@ function VoicePlayer() {
         const userId = ensureUserId();
         await axios.post('/api/history/tts', {
           userId,
-          text
+          text,
+          emotion
         });
         setText('');
         fetchTTSHistory();
@@ -83,36 +89,92 @@ function VoicePlayer() {
     }
   };
 
+  const playHistoryItem = async (historyText, historyEmotion = 'neutral') => {
+    setText(historyText);
+    setEmotion(historyEmotion);
+    
+    // Wait for state to update before playing
+    setTimeout(() => {
+      handlePlay();
+    }, 100);
+  };
+
   useEffect(() => {
     fetchTTSHistory();
   }, []);
 
   return (
     <div className="voice-player">
-      <h2>🎧 Listen to Script with AI Voice</h2>
+      <h2>🎧 Listen to Your Script with AI Voice</h2>
       <textarea
-        placeholder="Paste script to play"
+        placeholder="Paste your script here..."
         value={text}
         onChange={(e) => setText(e.target.value)}
       />
-      <button onClick={handlePlay} disabled={isPlaying}>
-        {isPlaying ? 'Playing...' : 'Play Voice'}
-      </button>
+      
+      <div className="controls-row">
+        <div className="emotion-selector">
+          <label>Select Emotion:</label>
+          <select value={emotion} onChange={(e) => setEmotion(e.target.value)}>
+            <option value="neutral">Neutral</option>
+            <option value="excited">Excited</option>
+            <option value="sad">Sad</option>
+            <option value="angry">Angry</option>
+            <option value="fearful">Fearful</option>
+            <option value="friendly">Friendly</option>
+            <option value="shouting">Shouting</option>
+            <option value="whispering">Whispering</option>
+          </select>
+        </div>
+        
+        <button 
+          className="play-button" 
+          onClick={handlePlay} 
+          disabled={isPlaying || !text.trim()}
+        >
+          {isPlaying ? '🔊 Playing...' : '▶️ Play Voice'}
+        </button>
+      </div>
       
       {/* Hidden audio element to play the TTS audio */}
       <audio ref={audioRef} style={{ display: 'none' }} />
 
       {ttsHistory && ttsHistory.length > 0 && (
-        <div className="upload-history">
-          <h3>Generated Voices History</h3>
-          <ul>
-            {ttsHistory.map((entry, index) => (
-              <li key={index}>
-                <p><strong>{new Date(entry.createdAt).toLocaleString()}:</strong></p>
-                <p>{entry.data}</p>
-              </li>
-            ))}
-          </ul>
+        <div className="history-section">
+          <button 
+            className="history-toggle"
+            onClick={() => setShowHistory(!showHistory)}
+          >
+            {showHistory ? 'Hide History' : 'Show History'} ({ttsHistory.length} items)
+          </button>
+          
+          {showHistory && (
+            <div className="history-container">
+              <h3>Voice Generation History</h3>
+              <ul className="history-list">
+                {ttsHistory.map((entry, index) => (
+                  <li key={index} className="history-item">
+                    <div className="history-header">
+                      <span className="history-date">
+                        {new Date(entry.createdAt).toLocaleString()}
+                      </span>
+                      <span className="history-emotion">
+                        {entry.emotion || 'neutral'}
+                      </span>
+                    </div>
+                    <p className="history-text">{entry.data || entry.text}</p>
+                    <button 
+                      className="history-play"
+                      onClick={() => playHistoryItem(entry.data || entry.text, entry.emotion)}
+                      disabled={isPlaying}
+                    >
+                      ▶️ Play
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
         </div>
       )}
     </div>

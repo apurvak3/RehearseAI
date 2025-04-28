@@ -2,7 +2,7 @@ const axios = require('axios');
 require('dotenv').config();
 
 exports.generateSpeech = async (req, res) => {
-  const { text } = req.body;
+  const { text, emotion } = req.body;
 
   try {
     const response = await axios.post(
@@ -11,8 +11,9 @@ exports.generateSpeech = async (req, res) => {
         text,
         model_id: "eleven_multilingual_v1",
         voice_settings: {
-          stability: 0.5,
-          similarity_boost: 0.75
+          stability: 0.4,
+          similarity_boost: 0.75,
+          style: emotion || "neutral"   // 👈 Default neutral agar emotion nahi diya
         }
       },
       {
