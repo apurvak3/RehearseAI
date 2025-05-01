@@ -1,3 +1,51 @@
-.env
-/backend/.env
-/colab_integration/.env
+# Root-level
+
+*.log
+.DS_Store
+node_modules/
+dist/
+build/
+
+# Frontend
+/frontend/node_modules/
+frontend/.env
+frontend/.next/
+frontend/dist/
+frontend/build/
+frontend/.turbo/
+
+# Backend
+/backend/node_modules/
+backend/.env
+backend/package-lock.json
+backend/.DS_Store
+backend/tmp/
+backend/logs/
+backend/.cache/
+
+# Colab / Jupyter Notebooks
+colab_integration/.env
+colab_integration/__pycache__/
+/colab_integration/.ipynb_checkpoints/
+colab_integration/*.pyc
+colab_integration/*.log
+colab_integration/venv/
+colab_integration/.venv/
+colab_integration/env/
+colab_integration/.DS_Store
+
+# VSCode & OS Files
+.vscode/
+Thumbs.db
+*.swp
+
+# Python Virtual Environment (just in case)
+venv/
+.env/
+.envrc
+.venv/
+
+# Ignore system files
+*.tmp
+*.bak
+*.old
