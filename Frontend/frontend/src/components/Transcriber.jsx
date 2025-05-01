@@ -30,7 +30,7 @@ function Transcriber() {
 
   const saveToHistory = async (text) => {
     try {
-      await axios.post('/history/transcriber', {
+      await axios.post('api/history/transcriber', {
         text,
         userId: localStorage.getItem('userId'),
       });
@@ -56,7 +56,7 @@ function Transcriber() {
         formData.append('audio', blob, 'recording.webm');
 
         try {
-          const res = await axios.post('/whisper/transcribe', formData, {
+          const res = await axios.post('api/whisper/transcribe', formData, {
             headers: { 'Content-Type': 'multipart/form-data' }
           });
           setTranscript(res.data.text);

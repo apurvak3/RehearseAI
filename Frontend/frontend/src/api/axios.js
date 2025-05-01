@@ -1,8 +1,10 @@
-import axios from 'axios';
+import axios from "axios";
 
 const instance = axios.create({
-  baseURL: 'http://localhost:5000/api', // ✅ Set base to backend port
-  withCredentials: true,
+  baseURL: "http://localhost:5000",  // Change if your backend is hosted
+  headers: {
+    "Content-Type": "application/json",
+  },
 });
 
 export default instance;

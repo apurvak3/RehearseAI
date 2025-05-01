@@ -3,25 +3,43 @@ const cors = require('cors');
 const mongoose = require('mongoose');
 require('dotenv').config();
 
-const app = express();
+// Routes
+const whisperRoutes = require('./routes/whisper');
 const ttsRoutes = require('./routes/tts');
-app.use(cors());
-app.use(express.json());
+const historyRoutes = require('./routes/history');
+
+// App setup
+const app = express();
+
+// Middleware
 app.use(cors({
-  origin: 'http://localhost:5173',   // ✅ Only allow this origin
-  credentials: true                  // ✅ Allow cookies, headers, etc.
+  origin: 'http://localhost:5173',  // ✅ Frontend origin (React)
+  credentials: true                // ✅ Allow credentials (cookies, headers)
 }));
+app.use(express.json());            // ✅ Parse JSON bodies
+app.use(express.urlencoded({ extended: true })); // ✅ Parse URL-encoded bodies
 
-mongoose.connect(process.env.MONGODB_URI)
-  .then(() => console.log('MongoDB connected'))
-  .catch(err => console.error(err));
+// MongoDB connection
+mongoose.connect(process.env.MONGODB_URI, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true
+})
+.then(() => console.log('✅ MongoDB connected'))
+.catch(err => console.error('❌ MongoDB connection error:', err));
 
-app.use('/api/whisper', require('./routes/whisper'));
-app.use('/api/history', require('./routes/history'));
+// API Routes
+app.use('/api/whisper', whisperRoutes);
 app.use('/api/tts', ttsRoutes);
-console.log("Whisper route loaded");
+app.use('/api/history', historyRoutes);
 
-
-app.listen(5000, () => {
-  console.log('Server running on http://localhost:5000');
+// Root route
+app.get('/', (req, res) => {
+  res.send('🎤 RehearseAI Backend Running');
 });
+
+// Start server
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => {
+  console.log(`🚀 Server running at http://localhost:${PORT}`);
+});
+

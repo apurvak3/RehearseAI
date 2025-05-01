@@ -6,7 +6,12 @@ const FormData = require('form-data');
 require('dotenv').config();
 
 exports.transcribeAudio = (req, res) => {
-  const form = formidable({ multiples: false, uploadDir: './uploads', keepExtensions: true });
+  // Fixed formidable initialization
+  const form = new formidable.IncomingForm({
+    multiples: false,
+    uploadDir: './uploads',
+    keepExtensions: true
+  });
 
   form.parse(req, async (err, fields, files) => {
     if (err || !files.audio) {
