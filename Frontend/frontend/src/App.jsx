@@ -5,7 +5,7 @@ import Home from './components/Home';
 import Login from './components/Login';
 import Signup from './components/Signup';
 import Transcriber from './components/Transcriber';
-import VoicePlayer from './components/VoicePlayer';
+import VoicePlayer from './components/voicePlayer';
 import ScriptUploader from './components/ScriptUploader';
 import Navbar from './components/Navbar';
 
